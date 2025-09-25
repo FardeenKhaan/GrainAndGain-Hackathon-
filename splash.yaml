@@ -1,0 +1,10 @@
+flutter_native_splash:
+  color: "#FFFFFF"        # light mode (white)
+  color_dark: "#000000"   # dark mode (black)
+  fullscreen: true
+
+  android_12:
+    color: "#FFFFFF"
+    color_dark: "#000000"
+
+  web: false
