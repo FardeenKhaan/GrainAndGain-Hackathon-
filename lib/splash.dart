@@ -1,11 +1,12 @@
 import 'dart:async';
-
-import 'package:code_cheat_app/routes/routes.dart';
-import 'package:code_cheat_app/utils/constants/colors.dart';
-import 'package:code_cheat_app/utils/constants/image_strings.dart';
-import 'package:code_cheat_app/utils/helpers/helper_functions.dart';
 import 'package:flutter/material.dart';
-import 'package:get/route_manager.dart';
+import 'package:get/get.dart';
+import 'package:grain_and_gain_student/controllers/auth_controller.dart';
+import 'package:grain_and_gain_student/routers/routes.dart';
+import 'package:grain_and_gain_student/utils/constants/colors.dart';
+import 'package:grain_and_gain_student/utils/constants/image_strings.dart';
+import 'package:grain_and_gain_student/utils/helpers/helper_functions.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -43,10 +44,20 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     });
   }
 
-  void _navigateToHomeScreen() {
-    Future.delayed(const Duration(seconds: 1), () {
-      Get.offNamed(FkRoutes.navigation);
-    });
+  Future<void> _navigateToHomeScreen() async {
+    await Future.delayed(const Duration(seconds: 3));
+
+    final session = Supabase.instance.client.auth.currentSession;
+
+    if (session != null && session.user != null) {
+      // fetch user profile from your "users" table
+      final authController = Get.find<AuthController>();
+      await authController.loadProfile(session.user.id);
+
+      Get.offNamed(FkRoutes.dashboard);
+    } else {
+      Get.offNamed(FkRoutes.logIn);
+    }
   }
 
   @override
