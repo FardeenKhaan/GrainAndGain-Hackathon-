@@ -2,32 +2,12 @@ import 'package:get/get.dart';
 import 'package:grain_and_gain_student/data/models/user_model.dart';
 import 'package:grain_and_gain_student/data/repositories/auth_repository.dart';
 import 'package:grain_and_gain_student/routers/routes.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthController extends GetxController {
   final AuthRepository _repository = AuthRepository();
 
   RxBool isLoading = false.obs;
   var currentUser = Rxn<UserModel>();
-
-  // @override
-  // void onInit() {
-  //   super.onInit();
-  //   initAuth();
-  // }
-
-  // // 👇 Check existing session when app starts
-  // Future<void> initAuth() async {
-  //   final session = Supabase.instance.client.auth.currentSession;
-
-  //   if (session != null && session.user != null) {
-  //     final userId = session.user!.id;
-  //     await loadProfile(userId);
-  //     Get.offAllNamed(FkRoutes.dashboard);
-  //   } else {
-  //     Get.offAllNamed(FkRoutes.logIn);
-  //   }
-  // }
 
   // 🔑 SIGN UP
   Future<void> signUp(String email, String password, String name) async {

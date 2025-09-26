@@ -3,6 +3,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class SupabaseProvider {
   final SupabaseClient _client = Supabase.instance.client;
 
+  SupabaseClient get client => _client; // 👈 add this
+
   // 🔑 AUTH
   Future<AuthResponse> signUp(String email, String password) async {
     return await _client.auth.signUp(email: email, password: password);
@@ -37,12 +39,7 @@ class SupabaseProvider {
   }
 
   Future<void> applyForTask(String taskId, String studentId) async {
-    // Mark as in progress or just record somewhere
-    await _client.from('submissions').insert({
-      'task_id': taskId,
-      'student_id': studentId,
-      'proof_url': '', // placeholder until student submits
-    });
+    await _client.from('submissions').insert({'task_id': taskId, 'student_id': studentId, 'proof_url': ''});
   }
 
   // 📤 SUBMISSIONS
@@ -80,6 +77,7 @@ class SupabaseProvider {
     return response;
   }
 }
+
 
 
 

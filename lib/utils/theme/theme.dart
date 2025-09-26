@@ -9,8 +9,8 @@ import 'package:grain_and_gain_student/utils/theme/widget_themes/text_field_them
 import 'package:grain_and_gain_student/utils/theme/widget_themes/text_theme.dart';
 import '../constants/colors.dart';
 
-class HkAppTheme {
-  HkAppTheme._();
+class FkAppTheme {
+  FkAppTheme._();
 
   static ThemeData lightTheme = ThemeData(
     useMaterial3: false,

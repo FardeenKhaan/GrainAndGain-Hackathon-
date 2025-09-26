@@ -4,65 +4,6 @@ import 'package:grain_and_gain_student/controllers/auth_controller.dart';
 import 'package:grain_and_gain_student/routers/routes.dart';
 import 'package:grain_and_gain_student/utils/constants/image_strings.dart';
 
-// class SignupView extends StatelessWidget {
-//   // final _authController = Get.put(AuthController());
-//   final AuthController _authController = Get.find<AuthController>();
-
-//   final _nameController = TextEditingController();
-//   final _emailController = TextEditingController();
-//   final _passwordController = TextEditingController();
-
-//   SignupView({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: const Text("Sign Up")),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16.0),
-//         child: Obx(
-//           () => _authController.isLoading.value
-//               ? const Center(child: CircularProgressIndicator())
-//               : Column(
-//                   children: [
-//                     TextField(
-//                       controller: _nameController,
-//                       decoration: const InputDecoration(labelText: "Name"),
-//                     ),
-//                     TextField(
-//                       controller: _emailController,
-//                       decoration: const InputDecoration(labelText: "Email"),
-//                     ),
-//                     TextField(
-//                       controller: _passwordController,
-//                       obscureText: true,
-//                       decoration: const InputDecoration(labelText: "Password"),
-//                     ),
-//                     const SizedBox(height: 20),
-//                     ElevatedButton(
-//                       onPressed: () {
-//                         _authController.signUp(
-//                           _emailController.text.trim(),
-//                           _passwordController.text.trim(),
-//                           _nameController.text.trim(),
-//                         );
-//                       },
-//                       child: const Text("Sign Up"),
-//                     ),
-//                     TextButton(
-//                       onPressed: () {
-//                         Get.toNamed(FkRoutes.logIn); // navigate to login
-//                       },
-//                       child: const Text("Already have an account? Login"),
-//                     ),
-//                   ],
-//                 ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 class SignupView extends StatelessWidget {
   final AuthController _authController = Get.find<AuthController>();
 
@@ -80,7 +21,6 @@ class SignupView extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
       body: Obx(
         () => _authController.isLoading.value
             ? const Center(child: CircularProgressIndicator())
