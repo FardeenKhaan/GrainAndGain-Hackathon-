@@ -9,16 +9,24 @@ class AuthController extends GetxController {
   RxBool isLoading = false.obs;
   var currentUser = Rxn<UserModel>();
 
-  // 🔑 SIGN UP
-  Future<void> signUp(String email, String password, String name) async {
+  // 🔑 SIGN UP (now accepts a role: "student" or "restaurant")
+  Future<void> signUp(String email, String password, String name, String role) async {
     try {
       isLoading.value = true;
-      final user = await _repository.signUp(email, password, name);
+      final user = await _repository.signUp(email, password, name, role);
       if (user != null) {
         currentUser.value = user;
         Get.snackbar("Success", "Account created successfully!");
-        // Get.snackbar("Welcome", "Hello ${user.name}!");
-        Get.offNamed(FkRoutes.dashboard); // 👈 go to student dashboard
+
+        // 🚀 Redirect depending on role
+        if (user.role == 'student') {
+          Get.offNamed(FkRoutes.dashboard);
+        } else if (user.role == 'restaurant') {
+          Get.offNamed(FkRoutes.restaurantDashboard);
+        } else {
+          // fallback
+          Get.offNamed(FkRoutes.dashboard);
+        }
       }
     } catch (e) {
       Get.snackbar("Error", e.toString());
@@ -27,15 +35,22 @@ class AuthController extends GetxController {
     }
   }
 
-  // 🔑 SIGN IN
+  // 🔑 SIGN IN (redirects based on role)
   Future<void> signIn(String email, String password) async {
     try {
       isLoading.value = true;
       final user = await _repository.signIn(email, password);
       if (user != null) {
         currentUser.value = user;
-        // Get.snackbar("Welcome", "Hello ${user.name}!");
-        Get.offNamed(FkRoutes.dashboard); // 👈 go to student dashboard
+
+        // 🚀 Redirect depending on role
+        if (user.role == 'student') {
+          Get.offNamed(FkRoutes.dashboard);
+        } else if (user.role == 'restaurant') {
+          Get.offNamed(FkRoutes.restaurantDashboard);
+        } else {
+          Get.offNamed(FkRoutes.dashboard);
+        }
       }
     } catch (e) {
       Get.snackbar("Error", e.toString());
@@ -83,6 +98,8 @@ class AuthController extends GetxController {
     }
   }
 }
+
+
 
 
 

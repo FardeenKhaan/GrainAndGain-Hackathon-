@@ -1,29 +1,40 @@
 import 'package:grain_and_gain_student/data/models/user_model.dart';
 import 'package:grain_and_gain_student/data/providers/supabase_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthRepository {
   final SupabaseProvider _provider = SupabaseProvider();
 
   // 🔑 SIGN UP
-  Future<UserModel?> signUp(String email, String password, String name) async {
-    // create user in Supabase Auth
-    final authResponse = await _provider.signUp(email, password);
+  Future<UserModel?> signUp(String email, String password, String name, String role) async {
+    try {
+      final authResponse = await _provider.signUp(email, password);
+      final user = authResponse.user;
 
-    final user = authResponse.user;
-    if (user != null) {
-      // insert into "users" table if not exists
-      final newUser = {'id': user.id, 'role': 'student', 'name': name, 'email': email};
+      if (user == null) {
+        throw Exception("Signup failed. Maybe this email already exists.");
+      }
 
-      // Check if already exists (avoid duplicate error if re-signing up)
+      // Insert into your users table
+      final newUser = {
+        'id': user.id,
+        'role': role,
+        'name': name,
+        'email': email,
+        'created_at': DateTime.now().toIso8601String(),
+      };
+
       final existing = await _provider.getUser(user.id);
       if (existing == null) {
         await _provider.createUser(newUser);
       }
 
-      // 👉 Immediately return as signed-in user
       return UserModel.fromJson(newUser);
+    } on AuthException catch (e) {
+      throw Exception("Signup failed: ${e.message}");
+    } catch (e) {
+      throw Exception("Unknown error: $e");
     }
-    return null;
   }
 
   // 🔑 SIGN IN
@@ -35,12 +46,14 @@ class AuthRepository {
       var data = await _provider.getUser(user.id);
 
       if (data == null) {
-        // 👇 create a minimal user row if it doesn't exist
+        // If there's no user row in `users` table, create a minimal record.
+        // Defaulting to 'student' is a safety-net — you can change this behavior.
         final newUser = {
           'id': user.id,
           'role': 'student',
-          'name': user.email?.split('@')[0] ?? 'Student',
+          'name': user.email?.split('@')[0] ?? 'User',
           'email': user.email ?? '',
+          'created_at': DateTime.now().toIso8601String(),
         };
         await _provider.createUser(newUser);
         data = newUser;

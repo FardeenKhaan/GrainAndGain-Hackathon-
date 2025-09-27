@@ -3,11 +3,23 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class SupabaseProvider {
   final SupabaseClient _client = Supabase.instance.client;
 
-  SupabaseClient get client => _client; // 👈 add this
+  SupabaseClient get client => _client;
 
   // 🔑 AUTH
+  // Future<AuthResponse> signUp(String email, String password) async {
+  //   // Keep it simple: create auth account first then write to `users` table.
+  //   return await _client.auth.signUp(email: email, password: password);
+  // }
+
   Future<AuthResponse> signUp(String email, String password) async {
-    return await _client.auth.signUp(email: email, password: password);
+    try {
+      final response = await _client.auth.signUp(email: email, password: password);
+      return response;
+    } on AuthException catch (e) {
+      throw Exception("Auth error: ${e.message}");
+    } catch (e) {
+      throw Exception("Unknown signup error: $e");
+    }
   }
 
   Future<AuthResponse> signIn(String email, String password) async {
@@ -21,6 +33,7 @@ class SupabaseProvider {
   // 👤 USERS
   Future<Map<String, dynamic>?> getUser(String userId) async {
     final response = await _client.from('users').select().eq('id', userId).maybeSingle();
+    // maybeSingle returns the row or null
     return response;
   }
 
@@ -32,6 +45,7 @@ class SupabaseProvider {
     await _client.from('users').update(data).eq('id', userId);
   }
 
+  // (the rest of your provider methods remain unchanged)
   // 📋 TASKS
   Future<List<Map<String, dynamic>>> getTasks() async {
     final response = await _client.from('tasks').select().eq('status', 'open');
