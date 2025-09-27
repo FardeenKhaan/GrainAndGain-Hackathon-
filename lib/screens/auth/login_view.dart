@@ -95,7 +95,7 @@ class LoginView extends StatelessWidget {
               child: Obx(
                 () => _authController.isLoading.value
                     ? const Center(
-                        child: SizedBox(height: 20, child: CircularProgressIndicator(color: FkColors.white)),
+                        child: SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: FkColors.white)),
                       )
                     : const Text("Login", style: TextStyle(fontSize: 16)),
               ),

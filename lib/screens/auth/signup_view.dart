@@ -14,6 +14,9 @@ class SignupView extends StatelessWidget {
   // 👁️ For showing/hiding password
   final RxBool _obscurePassword = true.obs;
 
+  // Role selection
+  final RxString _selectedRole = 'student'.obs; // default
+
   SignupView({super.key});
 
   @override
@@ -29,12 +32,9 @@ class SignupView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    /// 🔹 Logo / Illustration
-                    // Icon(Icons.person_add_alt_1_rounded, size: 100, color: theme.colorScheme.primary),
                     Image.asset(FkImages.splashLogo, height: 120, width: double.infinity),
                     const SizedBox(height: 20),
 
-                    /// 🔹 Title & Subtitle
                     Text(
                       "Create Account 🚀",
                       textAlign: TextAlign.center,
@@ -42,24 +42,49 @@ class SignupView extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      "Sign up to start using Code Cheat",
+                      "Sign up to start using Grain&Gain",
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 24),
 
-                    /// 🔹 Name Field
+                    /// Role selector (Student / Restaurant)
+                    Obx(
+                      () => Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ChoiceChip(
+                            label: const Text("Student"),
+                            selected: _selectedRole.value == 'student',
+                            onSelected: (v) {
+                              if (v) _selectedRole.value = 'student';
+                            },
+                          ),
+                          const SizedBox(width: 12),
+                          ChoiceChip(
+                            label: const Text("Restaurant"),
+                            selected: _selectedRole.value == 'restaurant',
+                            onSelected: (v) {
+                              if (v) _selectedRole.value = 'restaurant';
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    /// Name Field
                     TextField(
                       controller: _nameController,
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.person_outline),
-                        labelText: "Full Name",
+                        labelText: _selectedRole.value == 'restaurant' ? "Restaurant Name" : "Full Name",
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                       ),
                     ),
                     const SizedBox(height: 16),
 
-                    /// 🔹 Email Field
+                    /// Email Field
                     TextField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -71,7 +96,7 @@ class SignupView extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
 
-                    /// 🔹 Password Field
+                    /// Password Field
                     Obx(
                       () => TextField(
                         controller: _passwordController,
@@ -93,12 +118,13 @@ class SignupView extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
 
-                    /// 🔹 Sign Up Button
+                    /// Sign Up Button
                     ElevatedButton(
                       onPressed: () {
                         final name = _nameController.text.trim();
                         final email = _emailController.text.trim();
                         final password = _passwordController.text.trim();
+                        final role = _selectedRole.value;
 
                         if (name.isEmpty || email.isEmpty || password.isEmpty) {
                           Get.snackbar("Error", "All fields are required");
@@ -109,7 +135,7 @@ class SignupView extends StatelessWidget {
                           return;
                         }
 
-                        _authController.signUp(email, password, name);
+                        _authController.signUp(email, password, name, role);
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -119,7 +145,7 @@ class SignupView extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
 
-                    /// 🔹 Login Redirect
+                    /// Login Redirect
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
