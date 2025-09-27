@@ -1,21 +1,37 @@
 import 'package:get/get.dart';
-import '../../data/providers/supabase_provider.dart';
+import 'package:grain_and_gain_student/data/models/task_model.dart';
+import 'package:grain_and_gain_student/data/repositories/task_repository.dart';
 
 class TaskController extends GetxController {
-  final SupabaseProvider _provider = SupabaseProvider();
+  final TaskRepository _repository = TaskRepository();
 
-  var tasks = <Map<String, dynamic>>[].obs;
-  var isLoading = false.obs;
+  RxList<TaskModel> tasks = <TaskModel>[].obs;
+  RxBool isLoading = false.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadTasks(); // load tasks automatically when controller starts
+  }
 
   Future<void> loadTasks() async {
     try {
       isLoading.value = true;
-      final data = await _provider.getTasks();
-      tasks.assignAll(data);
+      final fetchedTasks = await _repository.getTasks();
+      tasks.assignAll(fetchedTasks);
     } catch (e) {
-      print("❌ Error loading tasks: $e");
+      Get.snackbar("Error", e.toString());
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  Future<void> applyForTask(String taskId, String studentId) async {
+    try {
+      await _repository.applyForTask(taskId, studentId);
+      Get.snackbar("Applied", "Task applied successfully!");
+    } catch (e) {
+      Get.snackbar("Error", e.toString());
     }
   }
 }
