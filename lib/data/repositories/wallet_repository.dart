@@ -1,4 +1,5 @@
 import 'package:grain_and_gain_student/data/providers/supabase_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/wallet_model.dart';
 
 class WalletRepository {
@@ -25,5 +26,9 @@ class WalletRepository {
   // create wallet for new student
   Future<void> createWallet(String studentId) async {
     await _provider.client.from('wallets').insert({'student_id': studentId, 'balance_points': 0});
+  }
+
+  RealtimeChannel subscribeToWallet(String studentId, void Function(Map<String, dynamic>) onChange) {
+    return _provider.subscribeToWallet(studentId, onChange);
   }
 }

@@ -1,30 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:grain_and_gain_student/controllers/auth_controller.dart';
+import 'package:grain_and_gain_student/controllers/submission_controller.dart';
 import 'package:grain_and_gain_student/controllers/task_controller.dart';
 import 'package:grain_and_gain_student/controllers/wallet_controller.dart';
 import 'package:grain_and_gain_student/routers/routes.dart';
 import 'package:grain_and_gain_student/screens/tasks/task_detail_view.dart';
+import 'package:grain_and_gain_student/screens/widgets/reuse_appbar.dart';
 import 'package:grain_and_gain_student/utils/constants/colors.dart';
 import 'package:grain_and_gain_student/utils/constants/sizes.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DashboardView extends StatelessWidget {
   final authController = Get.find<AuthController>();
   final walletController = Get.find<WalletController>();
   final taskController = Get.find<TaskController>();
+  final submissionController = Get.find<SubmissionController>();
 
   DashboardView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final user = authController.currentUser.value;
+
+    if (user != null && submissionController.submissions.isEmpty && !submissionController.isLoading.value) {
+      submissionController.loadMySubmissions(user.id); // 👈 run once before UI
+    }
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        title: const Text("Dashboard"),
+      appBar: FkAppBar(
+        title: Text('Dashboard'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout, color: Colors.red),
+            icon: const Icon(Iconsax.logout, color: Colors.red),
             onPressed: () {
               authController.signOut();
               Get.offAllNamed(FkRoutes.logIn);
@@ -162,6 +170,79 @@ class DashboardView extends StatelessWidget {
                             Get.to(() => TaskDetailView(task: task));
                           },
                         ),
+                      ),
+                    );
+                  },
+                );
+              }),
+              // After Available Tasks section
+              const SizedBox(height: 24),
+              Padding(
+                padding: const EdgeInsets.only(left: FkSizes.xs),
+                child: Text("My Submissions", style: Theme.of(context).textTheme.titleLarge),
+              ),
+
+              /// -- added context for student view their task statuses
+
+              // Obx(() {
+              //   if (submissionController.isLoading.value) {
+              //     return const Center(child: CircularProgressIndicator());
+              //   }
+              //   if (submissionController.submissions.isEmpty) {
+              //     return const Text("You haven’t submitted any tasks yet.");
+              //   }
+
+              //   return ListView.builder(
+              //     shrinkWrap: true,
+              //     physics: const NeverScrollableScrollPhysics(),
+              //     itemCount: submissionController.submissions.length,
+              //     itemBuilder: (context, index) {
+              //       final sub = submissionController.submissions[index];
+              //       return Card(
+              //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              //         child: ListTile(
+              //           leading: const Icon(Iconsax.task),
+              //           title: Text(sub.task?.title ?? "Task"),
+              //           subtitle: Column(
+              //             crossAxisAlignment: CrossAxisAlignment.start,
+              //             children: [
+              //               Text("Status: ${sub.status}"),
+              //               if (sub.proofUrl.isNotEmpty)
+              //                 GestureDetector(
+              //                   onTap: () => launchUrl(Uri.parse(sub.proofUrl)),
+              //                   child: const Text("View Proof", style: TextStyle(color: Colors.blue)),
+              //                 ),
+              //             ],
+              //           ),
+              //           trailing: Text("${sub.task?.rewardPoints ?? 0} pts"),
+              //         ),
+              //       );
+              //     },
+              //   );
+              // }),
+              Obx(() {
+                final submissionController = Get.find<SubmissionController>();
+
+                if (submissionController.isLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (submissionController.submissions.isEmpty) {
+                  return const Text("No submissions yet.");
+                }
+
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: submissionController.submissions.length,
+                  itemBuilder: (context, index) {
+                    final sub = submissionController.submissions[index];
+                    return Card(
+                      child: ListTile(
+                        title: Text(sub.task?.title ?? "Unknown Task"),
+                        subtitle: Text("Status: ${sub.status}"),
+                        trailing: sub.proofUrl.isNotEmpty
+                            ? const Icon(Icons.check_circle, color: Colors.green)
+                            : const Icon(Icons.hourglass_empty, color: Colors.orange),
                       ),
                     );
                   },

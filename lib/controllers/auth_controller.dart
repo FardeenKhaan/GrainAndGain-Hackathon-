@@ -9,23 +9,23 @@ class AuthController extends GetxController {
   RxBool isLoading = false.obs;
   var currentUser = Rxn<UserModel>();
 
-  // 🔑 SIGN UP (now accepts a role: "student" or "restaurant")
-  Future<void> signUp(String email, String password, String name, String role) async {
+  // SIGN UP (now accepts a role: "student" or "restaurant")
+  Future<void> signUp(String email, String password, String name, String role, String phone) async {
     try {
       isLoading.value = true;
-      final user = await _repository.signUp(email, password, name, role);
+      final user = await _repository.signUp(email, password, name, role, phone);
       if (user != null) {
         currentUser.value = user;
         Get.snackbar("Success", "Account created successfully!");
 
         // 🚀 Redirect depending on role
         if (user.role == 'student') {
-          Get.offNamed(FkRoutes.dashboard);
+          Get.offAllNamed(FkRoutes.dashboard);
         } else if (user.role == 'restaurant') {
-          Get.offNamed(FkRoutes.restaurantDashboard);
+          Get.offAllNamed(FkRoutes.restaurantDashboard);
         } else {
           // fallback
-          Get.offNamed(FkRoutes.dashboard);
+          Get.offAllNamed(FkRoutes.dashboard);
         }
       }
     } catch (e) {
@@ -35,7 +35,7 @@ class AuthController extends GetxController {
     }
   }
 
-  // 🔑 SIGN IN (redirects based on role)
+  // SIGN IN (redirects based on role)
   Future<void> signIn(String email, String password) async {
     try {
       isLoading.value = true;
@@ -45,11 +45,11 @@ class AuthController extends GetxController {
 
         // 🚀 Redirect depending on role
         if (user.role == 'student') {
-          Get.offNamed(FkRoutes.dashboard);
+          Get.offAllNamed(FkRoutes.dashboard);
         } else if (user.role == 'restaurant') {
-          Get.offNamed(FkRoutes.restaurantDashboard);
+          Get.offAllNamed(FkRoutes.restaurantDashboard);
         } else {
-          Get.offNamed(FkRoutes.dashboard);
+          Get.offAllNamed(FkRoutes.dashboard);
         }
       }
     } catch (e) {
@@ -59,7 +59,7 @@ class AuthController extends GetxController {
     }
   }
 
-  // 🚪 SIGN OUT
+  // SIGN OUT
   Future<void> signOut() async {
     try {
       await _repository.signOut();
@@ -69,7 +69,7 @@ class AuthController extends GetxController {
     }
   }
 
-  // 👤 FETCH USER PROFILE
+  // FETCH USER PROFILE
   Future<void> loadProfile(String userId) async {
     try {
       isLoading.value = true;
@@ -84,7 +84,7 @@ class AuthController extends GetxController {
     }
   }
 
-  // ✏️ UPDATE PROFILE
+  // UPDATE PROFILE
   Future<void> updateProfile(Map<String, dynamic> updates) async {
     try {
       final userId = currentUser.value?.id;
@@ -103,7 +103,7 @@ class AuthController extends GetxController {
 
 
 
-// 🧩 How It Works
+// How It Works
 
 // AuthController = Business logic + state (isLoading, currentUser).
 

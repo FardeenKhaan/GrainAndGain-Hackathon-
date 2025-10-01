@@ -6,7 +6,7 @@ class AuthRepository {
   final SupabaseProvider _provider = SupabaseProvider();
 
   // 🔑 SIGN UP
-  Future<UserModel?> signUp(String email, String password, String name, String role) async {
+  Future<UserModel?> signUp(String email, String password, String name, String role, String phone) async {
     try {
       final authResponse = await _provider.signUp(email, password);
       final user = authResponse.user;
@@ -21,6 +21,7 @@ class AuthRepository {
         'role': role,
         'name': name,
         'email': email,
+        'phone': phone,
         'created_at': DateTime.now().toIso8601String(),
       };
 

@@ -4,6 +4,8 @@ import 'package:grain_and_gain_student/controllers/auth_controller.dart';
 import 'package:grain_and_gain_student/routers/routes.dart';
 import 'package:grain_and_gain_student/utils/constants/colors.dart';
 import 'package:grain_and_gain_student/utils/constants/image_strings.dart';
+import 'package:grain_and_gain_student/utils/constants/sizes.dart';
+import 'package:iconsax/iconsax.dart';
 
 class LoginView extends StatelessWidget {
   final AuthController _authController = Get.find<AuthController>();
@@ -22,11 +24,11 @@ class LoginView extends StatelessWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             /// 🔹 Logo / Illustration
             // Icon(Icons.vpn_key_rounded, size: 100, color: theme.colorScheme.primary),
-            Image.asset(FkImages.splashLogo, height: 120, width: double.infinity),
+            Image.asset(FkImages.splashLogo, height: 120, width: double.infinity, alignment: Alignment.topLeft),
             const SizedBox(height: 20),
 
             /// 🔹 Title & Subtitle
@@ -48,7 +50,7 @@ class LoginView extends StatelessWidget {
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.email_outlined),
+                prefixIcon: const Icon(Iconsax.sms),
                 labelText: "Email",
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
               ),
@@ -61,7 +63,7 @@ class LoginView extends StatelessWidget {
                 controller: _passwordController,
                 obscureText: _obscurePassword.value,
                 decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.lock_outline),
+                  prefixIcon: const Icon(Iconsax.lock),
                   labelText: "Password",
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
                   suffixIcon: IconButton(
@@ -76,28 +78,38 @@ class LoginView extends StatelessWidget {
             const SizedBox(height: 24),
 
             /// 🔹 Login Button
-            ElevatedButton(
-              onPressed: () {
-                final email = _emailController.text.trim();
-                final password = _passwordController.text.trim();
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  final email = _emailController.text.trim();
+                  final password = _passwordController.text.trim();
 
-                if (email.isEmpty || password.isEmpty) {
-                  Get.snackbar("Error", "Email & Password are required");
-                  return;
-                }
+                  if (email.isEmpty || password.isEmpty) {
+                    Get.snackbar("Error", "Email & Password are required");
+                    return;
+                  }
 
-                _authController.signIn(email, password);
-              },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-              ),
-              child: Obx(
-                () => _authController.isLoading.value
-                    ? const Center(
-                        child: SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: FkColors.white)),
-                      )
-                    : const Text("Login", style: TextStyle(fontSize: 16)),
+                  _authController.signIn(email, password);
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: FkSizes.md, horizontal: FkSizes.buttonWidth),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                ),
+                child: Obx(
+                  () => SizedBox(
+                    width: FkSizes.buttonWidth, // 🔑 keep width fixed
+                    height: FkSizes.buttonHeight, // match indicator height
+                    child: Center(
+                      child: _authController.isLoading.value
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: FkColors.white),
+                            )
+                          : const Text("Login", style: TextStyle(fontSize: 16)),
+                    ),
+                  ),
+                ),
               ),
             ),
 
@@ -107,8 +119,11 @@ class LoginView extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text("Don't have an account?"),
-                TextButton(onPressed: () => Get.toNamed(FkRoutes.signUp), child: const Text("Sign Up")),
+                Text("Don't have an account?", style: TextTheme.of(context).titleSmall),
+                TextButton(
+                  onPressed: () => Get.toNamed(FkRoutes.signUp),
+                  child: Text("Sign Up", style: TextTheme.of(context).titleSmall!.copyWith(color: FkColors.primary)),
+                ),
               ],
             ),
           ],

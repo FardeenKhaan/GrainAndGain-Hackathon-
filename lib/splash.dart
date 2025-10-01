@@ -44,17 +44,44 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     });
   }
 
+  // Future<void> _navigateToHomeScreen() async {
+  //   await Future.delayed(const Duration(seconds: 3));
+
+  //   final session = Supabase.instance.client.auth.currentSession;
+
+  //   if (session != null && session.user != null) {
+  //     // fetch user profile from your "users" table
+  //     final authController = Get.find<AuthController>();
+  //     await authController.loadProfile(session.user.id);
+
+  //     Get.offNamed(FkRoutes.dashboard);
+  //   } else {
+  //     Get.offNamed(FkRoutes.logIn);
+  //   }
+  // }
   Future<void> _navigateToHomeScreen() async {
     await Future.delayed(const Duration(seconds: 3));
 
     final session = Supabase.instance.client.auth.currentSession;
 
     if (session != null && session.user != null) {
-      // fetch user profile from your "users" table
       final authController = Get.find<AuthController>();
       await authController.loadProfile(session.user.id);
 
-      Get.offNamed(FkRoutes.dashboard);
+      final user = authController.currentUser.value;
+
+      if (user != null) {
+        if (user.role == 'student') {
+          Get.offNamed(FkRoutes.dashboard); // student dashboard
+        } else if (user.role == 'restaurant') {
+          Get.offNamed(FkRoutes.restaurantDashboard); // restaurant dashboard
+        } else {
+          // fallback → maybe later add "admin"
+          Get.offNamed(FkRoutes.dashboard);
+        }
+      } else {
+        Get.offNamed(FkRoutes.logIn);
+      }
     } else {
       Get.offNamed(FkRoutes.logIn);
     }
