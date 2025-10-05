@@ -19,13 +19,13 @@ class TaskModel {
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
     return TaskModel(
-      id: json['id'],
-      restaurantId: json['restaurant_id'],
-      title: json['title'],
+      id: json['id'] ?? '',
+      restaurantId: json['restaurant_id'] ?? '',
+      title: json['title'] ?? '',
       description: json['description'],
-      rewardPoints: json['reward_points'],
-      status: json['status'],
-      createdAt: DateTime.parse(json['created_at']),
+      rewardPoints: json['reward_points'] ?? 0,
+      status: json['status'] ?? 'open',
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : DateTime.now(),
     );
   }
 

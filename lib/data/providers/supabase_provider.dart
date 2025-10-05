@@ -101,8 +101,18 @@ class SupabaseProvider {
   }
 
   // 🟢 Approve / 🔴 Reject submission
+  // Future<void> updateSubmissionStatus(String submissionId, String status) async {
+  //   await _client.from('submissions').update({'status': status}).eq('id', submissionId);
+  // }
+  // Future<void> updateSubmissionStatus(String submissionId, String status) async {
+  //   await _client
+  //       .from("submissions")
+  //       .update({"status": status})
+  //       .eq("id", submissionId); // ✅ use submission id, not user_id
+  // }
+  // 🛠️ Update submission status
   Future<void> updateSubmissionStatus(String submissionId, String status) async {
-    await _client.from('submissions').update({'status': status}).eq('id', submissionId);
+    await _client.from('submissions').update({'status': status}).eq('id', submissionId); // ✅ correct filter
   }
 
   // 💰 WALLET

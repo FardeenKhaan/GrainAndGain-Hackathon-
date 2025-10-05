@@ -183,51 +183,12 @@ class DashboardView extends StatelessWidget {
               ),
 
               /// -- added context for student view their task statuses
-
-              // Obx(() {
-              //   if (submissionController.isLoading.value) {
-              //     return const Center(child: CircularProgressIndicator());
-              //   }
-              //   if (submissionController.submissions.isEmpty) {
-              //     return const Text("You haven’t submitted any tasks yet.");
-              //   }
-
-              //   return ListView.builder(
-              //     shrinkWrap: true,
-              //     physics: const NeverScrollableScrollPhysics(),
-              //     itemCount: submissionController.submissions.length,
-              //     itemBuilder: (context, index) {
-              //       final sub = submissionController.submissions[index];
-              //       return Card(
-              //         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              //         child: ListTile(
-              //           leading: const Icon(Iconsax.task),
-              //           title: Text(sub.task?.title ?? "Task"),
-              //           subtitle: Column(
-              //             crossAxisAlignment: CrossAxisAlignment.start,
-              //             children: [
-              //               Text("Status: ${sub.status}"),
-              //               if (sub.proofUrl.isNotEmpty)
-              //                 GestureDetector(
-              //                   onTap: () => launchUrl(Uri.parse(sub.proofUrl)),
-              //                   child: const Text("View Proof", style: TextStyle(color: Colors.blue)),
-              //                 ),
-              //             ],
-              //           ),
-              //           trailing: Text("${sub.task?.rewardPoints ?? 0} pts"),
-              //         ),
-              //       );
-              //     },
-              //   );
-              // }),
               Obx(() {
-                final submissionController = Get.find<SubmissionController>();
-
                 if (submissionController.isLoading.value) {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (submissionController.submissions.isEmpty) {
-                  return const Text("No submissions yet.");
+                  return const Text("You haven’t submitted any tasks yet.");
                 }
 
                 return ListView.builder(
@@ -237,12 +198,22 @@ class DashboardView extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final sub = submissionController.submissions[index];
                     return Card(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       child: ListTile(
-                        title: Text(sub.task?.title ?? "Unknown Task"),
-                        subtitle: Text("Status: ${sub.status}"),
-                        trailing: sub.proofUrl.isNotEmpty
-                            ? const Icon(Icons.check_circle, color: Colors.green)
-                            : const Icon(Icons.hourglass_empty, color: Colors.orange),
+                        leading: const Icon(Iconsax.task),
+                        title: Text(sub.task?.title ?? "Task"),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Status: ${sub.status}"),
+                            if (sub.proofUrl.isNotEmpty)
+                              GestureDetector(
+                                onTap: () => launchUrl(Uri.parse(sub.proofUrl)),
+                                child: const Text("View Proof", style: TextStyle(color: Colors.blue)),
+                              ),
+                          ],
+                        ),
+                        trailing: Text("${sub.task?.rewardPoints ?? 0} pts"),
                       ),
                     );
                   },
