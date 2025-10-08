@@ -5,6 +5,8 @@ import 'package:grain_and_gain_student/controllers/submission_controller.dart';
 import 'package:grain_and_gain_student/controllers/task_controller.dart';
 import 'package:grain_and_gain_student/controllers/wallet_controller.dart';
 import 'package:grain_and_gain_student/routers/routes.dart';
+import 'package:grain_and_gain_student/screens/redemption/restaurant_redemption_screen.dart';
+import 'package:grain_and_gain_student/screens/redemption/student_redemption_screen.dart';
 import 'package:grain_and_gain_student/screens/tasks/task_detail_view.dart';
 import 'package:grain_and_gain_student/screens/widgets/reuse_appbar.dart';
 import 'package:grain_and_gain_student/utils/constants/colors.dart';
@@ -25,7 +27,7 @@ class DashboardView extends StatelessWidget {
     final user = authController.currentUser.value;
 
     if (user != null && submissionController.submissions.isEmpty && !submissionController.isLoading.value) {
-      submissionController.loadMySubmissions(user.id); // 👈 run once before UI
+      submissionController.loadMySubmissions(user.id); // run once before UI
     }
     return Scaffold(
       appBar: FkAppBar(
@@ -85,7 +87,7 @@ class DashboardView extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // 💰 Wallet Card
+              /// --- Wallet Card
               Card(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 elevation: 4,
@@ -123,6 +125,24 @@ class DashboardView extends StatelessWidget {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
+                          ),
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              shadowColor: FkColors.dark,
+                              elevation: 4,
+                              backgroundColor: Colors.transparent,
+                              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 5),
+                            ),
+                            icon: const Icon(Iconsax.gift),
+                            label: const Text("Redeem Points"),
+                            onPressed: () {
+                              // Get.to(() => StudentRedemptionScreen());
+                              if (user.role == 'student') {
+                                Get.to(() => StudentRedemptionScreen(studentId: user.id));
+                              } else if (user.role == 'restaurant') {
+                                Get.to(() => RestaurantRedemptionScreen(restaurantId: user.id));
+                              }
+                            },
                           ),
                         ],
                       ),
