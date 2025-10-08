@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:grain_and_gain_student/controllers/auth_controller.dart';
 import 'package:grain_and_gain_student/data/models/submission_model.dart';
 import 'package:grain_and_gain_student/data/models/task_model.dart';
 import 'package:grain_and_gain_student/data/providers/supabase_provider.dart';
@@ -72,13 +75,9 @@ class SubmissionRepository {
   Future<List<SubmissionModel>> getTaskSubmissions(String restaurantId) async {
     final response = await _provider.client
         .from('submissions')
-        .select(
-          'id, task_id, student_id, proof_url, status, created_at, tasks(id, restaurant_id, title, reward_points)',
-        )
-        .eq('tasks.restaurant_id', restaurantId) // ✅ join filter
+        .select('id, task_id, student_id, proof_url, status, created_at, tasks!inner(*)')
+        .eq('tasks.restaurant_id', restaurantId)
         .order('created_at', ascending: false);
-
-    print("Submissions response: $response"); // 🔍 see full shape
 
     return (response as List).map((e) => SubmissionModel.fromJson(e)).toList();
   }
@@ -101,6 +100,17 @@ class SubmissionRepository {
   }
 
   // Update status
+  // Future<void> updateSubmissionStatus(
+  //   String submissionId,
+  //   String status,
+  // ) async {
+  //   await _provider.updateSubmissionStatus(submissionId, status);
+  // }
+  // Future<void> updateSubmissionStatus(String submissionId, String status) async {
+  //   final restaurantId = Get.find<AuthController>().currentUser.value!.id;
+  //   await _provider.updateSubmissionStatus(submissionId, status);
+  //   Get.snackbar("Updated", "Submission marked as $status!");
+  // }
   Future<void> updateSubmissionStatus(String submissionId, String status) async {
     await _provider.updateSubmissionStatus(submissionId, status);
   }

@@ -4,6 +4,8 @@ import 'package:grain_and_gain_student/controllers/auth_controller.dart';
 import 'package:grain_and_gain_student/controllers/submission_controller.dart';
 import 'package:grain_and_gain_student/controllers/task_controller.dart';
 import 'package:grain_and_gain_student/routers/routes.dart';
+import 'package:grain_and_gain_student/screens/redemption/restaurant_redemption_screen.dart';
+import 'package:grain_and_gain_student/screens/redemption/student_redemption_screen.dart';
 import 'package:grain_and_gain_student/screens/tasks/restaurant/create_task.dart';
 import 'package:grain_and_gain_student/screens/tasks/restaurant/edit_task.dart';
 import 'package:grain_and_gain_student/screens/widgets/reuse_appbar.dart';
@@ -22,13 +24,13 @@ class RestaurantDashboardView extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = authController.currentUser.value!;
 
-    // 👇 Load restaurant tasks on init
+    /// Load tasks and submissions for this restaurant
     taskController.loadRestaurantTasks(user.id);
-    submissionController.loadRestaurantSubmissions(user.id); // 👈 ADD THIS
+    submissionController.loadRestaurantSubmissions(user.id);
 
     return Scaffold(
       appBar: FkAppBar(
-        title: Text('Restaurant Dashboard'),
+        title: const Text("Restaurant Dashboard"),
         actions: [
           IconButton(
             icon: const Icon(Iconsax.logout, color: Colors.red),
@@ -39,13 +41,23 @@ class RestaurantDashboardView extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: FkColors.primary,
+        onPressed: () => Get.to(() => CreateTaskView()),
+        child: const Icon(Icons.add),
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await taskController.loadRestaurantTasks(user.id);
+          await submissionController.loadRestaurantSubmissions(user.id);
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 👤 Profile Section
+              // 👤 Profile Header
               Row(
                 children: [
                   CircleAvatar(
@@ -67,13 +79,32 @@ class RestaurantDashboardView extends StatelessWidget {
                           user.email,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                         ),
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.deepOrange,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          icon: const Icon(Icons.qr_code_2),
+                          label: const Text("Validate Redemption"),
+                          onPressed: () {
+                            // Get.to(() => RestaurantValidateScreen());
+                            if (user.role == 'student') {
+                              Get.to(() => StudentRedemptionScreen(studentId: user.id));
+                            } else if (user.role == 'restaurant') {
+                              Get.to(() => RestaurantRedemptionScreen(restaurantId: user.id));
+                            }
+                          },
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
 
+              const SizedBox(height: 24),
+              Text("Your Created Tasks", style: Theme.of(context).textTheme.titleLarge),
+
+              // Restaurant Tasks List
               Obx(() {
                 if (taskController.isLoading.value) {
                   return const Center(child: CircularProgressIndicator());
@@ -90,10 +121,6 @@ class RestaurantDashboardView extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final task = taskController.myRestaurantTasks[index];
                     return Card(
-                      // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                      // child: ListTile(
-                      //   title: Text(task.title),
-                      //   subtitle: Text(task.description ?? ""),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                       child: Container(
                         decoration: BoxDecoration(
@@ -162,81 +189,94 @@ class RestaurantDashboardView extends StatelessWidget {
                   },
                 );
               }),
+
               const SizedBox(height: 24),
-              Text("Task Submissions", style: Theme.of(context).textTheme.titleLarge),
+              Text("Student Submissions", style: Theme.of(context).textTheme.titleLarge),
+
+              // 📜 Submissions List
               Obx(() {
                 if (submissionController.isLoading.value) {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (submissionController.submissions.isEmpty) {
-                  return const Text("No submissions yet.");
+                  return const Padding(padding: EdgeInsets.all(16.0), child: Text("No submissions yet."));
                 }
 
-                // return ListView.builder(
-                //   itemCount: submissionController.submissions.length,
-                //   itemBuilder: (context, index) {
-                //     final sub = submissionController.submissions[index];
-                //     return Card(
-                //       child: ListTile(
-                //         title: Text("Student: ${sub.studentId}"),
-                //         subtitle: Column(
-                //           crossAxisAlignment: CrossAxisAlignment.start,
-                //           children: [
-                //             Text("Status: ${sub.status}"),
-                //             GestureDetector(
-                //               onTap: () {
-                //                 // open proof in browser
-                //                 launchUrl(Uri.parse(sub.proofUrl));
-                //               },
-                //               child: Text("View Proof", style: TextStyle(color: Colors.blue)),
-                //             ),
-                //           ],
-                //         ),
-                //         trailing: PopupMenuButton<String>(
-                //           onSelected: (value) {
-                //             submissionController.changeStatus(sub.id, value);
-                //           },
-                //           itemBuilder: (context) => [
-                //             const PopupMenuItem(value: "approved", child: Text("Approve")),
-                //             const PopupMenuItem(value: "rejected", child: Text("Reject")),
-                //           ],
-                //         ),
-                //       ),
-                //     );
-                //   },
-                // );
                 return ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: submissionController.submissions.length,
                   itemBuilder: (context, index) {
                     final sub = submissionController.submissions[index];
+
+                    Color statusColor;
+                    switch (sub.status) {
+                      case "pending":
+                        statusColor = Colors.orange;
+                        break;
+                      case "approved_for_proof":
+                        statusColor = Colors.blue;
+                        break;
+                      case "proof_submitted":
+                        statusColor = Colors.purple;
+                        break;
+                      case "approved_final":
+                        statusColor = Colors.green;
+                        break;
+                      case "rejected":
+                        statusColor = Colors.red;
+                        break;
+                      default:
+                        statusColor = Colors.grey;
+                    }
+
                     return Card(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      margin: const EdgeInsets.symmetric(vertical: 8),
                       child: ListTile(
-                        leading: const Icon(Iconsax.task),
-                        title: Text(sub.task?.title ?? "Task"),
+                        title: Text("Student: ${sub.studentId}"),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Student: ${sub.studentId}"),
-                            Text("Status: ${sub.status}"),
-                            if (sub.task != null) Text("Reward: ${sub.task!.rewardPoints} pts"),
+                            Text("Task ID: ${sub.taskId}"),
                             const SizedBox(height: 4),
-                            GestureDetector(
-                              onTap: () => launchUrl(Uri.parse(sub.proofUrl)),
-                              child: const Text("View Proof", style: TextStyle(color: Colors.blue)),
+                            Chip(
+                              label: Text(sub.status.toUpperCase()),
+                              backgroundColor: statusColor.withOpacity(0.15),
+                              labelStyle: TextStyle(color: statusColor),
                             ),
+                            if (sub.proofUrl != null && sub.proofUrl!.isNotEmpty)
+                              GestureDetector(
+                                onTap: () {
+                                  launchUrl(Uri.parse(sub.proofUrl!));
+                                },
+                                child: const Text("View Proof", style: TextStyle(color: Colors.blue)),
+                              ),
                           ],
                         ),
                         trailing: PopupMenuButton<String>(
                           onSelected: (value) {
                             submissionController.changeStatus(sub.id, value);
                           },
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(value: "approved", child: Text("Approve")),
-                            const PopupMenuItem(value: "rejected", child: Text("Reject")),
-                          ],
+                          itemBuilder: (context) {
+                            final List<PopupMenuEntry<String>> menu = [];
+
+                            if (sub.status == "pending") {
+                              menu.add(
+                                const PopupMenuItem(value: "approved_for_proof", child: Text("Approve (Allow Proof)")),
+                              );
+                              menu.add(const PopupMenuItem(value: "rejected", child: Text("Reject")));
+                            } else if (sub.status == "proof_submitted") {
+                              menu.add(
+                                const PopupMenuItem(
+                                  value: "approved_final",
+                                  child: Text("Approve Final (Credit Wallet)"),
+                                ),
+                              );
+                              menu.add(const PopupMenuItem(value: "rejected", child: Text("Reject")));
+                            }
+
+                            return menu;
+                          },
                         ),
                       ),
                     );
@@ -246,11 +286,6 @@ class RestaurantDashboardView extends StatelessWidget {
             ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: FkColors.primary,
-        onPressed: () => Get.to(() => CreateTaskView()),
-        child: const Icon(Icons.add),
       ),
     );
   }

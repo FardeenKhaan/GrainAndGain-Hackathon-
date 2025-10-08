@@ -53,9 +53,6 @@ class SupabaseProvider {
     return List<Map<String, dynamic>>.from(response);
   }
 
-  // Future<void> applyForTask(String taskId, String studentId) async {
-  //   await _client.from('submissions').insert({'task_id': taskId, 'student_id': studentId, 'proof_url': ''});
-  // }
   Future<void> applyForTask(String taskId, String studentId) async {
     try {
       await _client.from('submissions').insert({
@@ -70,27 +67,16 @@ class SupabaseProvider {
   }
 
   // 📤 SUBMISSIONS
-  // Future<void> submitProof(String taskId, String studentId, String proofUrl) async {
-  //   await _client.from("submissions").insert({
-  //     'task_id': taskId,
-  //     'student_id': studentId,
-  //     'proof_url': proofUrl,
-  //     'status': 'pending',
-  //   });
-  // }
   Future<void> submitProof(String taskId, String studentId, String proofUrl) async {
-    await _client.from("submissions").upsert({
-      'task_id': taskId,
-      'student_id': studentId,
-      'proof_url': proofUrl,
-      'status': 'pending',
-    }, onConflict: 'task_id,student_id');
+    await _client
+        .from("submissions")
+        .update({
+          'proof_url': proofUrl,
+          'status': 'proof_submitted', // 👈 important: mark proof submitted
+        })
+        .match({'task_id': taskId, 'student_id': studentId});
   }
 
-  // Future<List<Map<String, dynamic>>> getSubmissions(String studentId) async {
-  //   final response = await _client.from('submissions').select().eq('student_id', studentId);
-  //   return List<Map<String, dynamic>>.from(response);
-  // }
   // 👀 Restaurant fetches all submissions for their tasks
   Future<List<Map<String, dynamic>>> getTaskSubmissions(String restaurantId) async {
     final response = await _client
@@ -100,9 +86,9 @@ class SupabaseProvider {
     return List<Map<String, dynamic>>.from(response);
   }
 
-  // 🟢 Approve / 🔴 Reject submission
+  // 🛠️ Update submission status
   Future<void> updateSubmissionStatus(String submissionId, String status) async {
-    await _client.from('submissions').update({'status': status}).eq('id', submissionId);
+    await _client.from('submissions').update({'status': status}).eq('id', submissionId); // correct filter
   }
 
   // 💰 WALLET
@@ -125,6 +111,10 @@ class SupabaseProvider {
   Future<Map<String, dynamic>?> validateRedemption(String code) async {
     final response = await _client.from('redemptions').select().eq('code', code).maybeSingle();
     return response;
+  }
+
+  Future<void> updateWalletBalance(String studentId, int newBalance) async {
+    await _client.from('wallets').update({'balance_points': newBalance}).eq('student_id', studentId);
   }
 
   // 🚀 Realtime listener for tasks
