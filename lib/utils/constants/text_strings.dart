@@ -7,19 +7,22 @@ class FkTexts {
   // -- Authentication Headings
 
   // -- Home
-  static const String Logo = "Code Cheat";
-  static const String appName = "Bike Driving Cheat Codes";
-  static const String popularCheats = "Popular Cheats";
-  static const String popularCategories = "Popular Categories";
-  static const String bannerSubtitle = 'Unlock Your Gaming Potential';
+  static const String appName = "Grain&Gain";
+  static const String studentDashboard = 'Student Dashboard';
+  static const String availaleTasks = 'Available Tasks';
+  static const String resturantDashboard = 'Restaurant Dashboard';
+  static const String createdTasks = 'Your Created Tasks';
+  static const String noCreatedTask = 'No tasks created yet. Tap + to create one!';
+  static const String noStudentSubmissions = 'No student submissions yet.';
 
   // -- Categories Screen
-  static const String categoriesScreen = 'Categories';
+  static const String mealPoints = 'Meal Points';
+  static const String noTaskAvailable = 'No tasks available right now.';
 
-  // -- Settings Screen
-  static const String settings = 'Settings';
-  static const String howToUse = 'How to Use?';
-  static const String welcome = "Welcome to Indian Bike Driving Cheats!";
+  // -- Buttons
+  static const String viewSubmissions = 'View Submissions';
+  static const String createTask = 'Create Task';
+  static const String studentSubmissions = "Student Submissions";
 
   // -- No-Categories --No-Cheats
   static const String noCheats = 'No cheats available for this category';

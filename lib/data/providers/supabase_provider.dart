@@ -41,15 +41,20 @@ class SupabaseProvider {
   }
 
   // (the rest of your provider methods remain unchanged)
-  // 🚀 Get tasks created by a restaurant
+  // Get tasks created by a restaurant
   Future<List<Map<String, dynamic>>> getRestaurantTasks(String restaurantId) async {
     final response = await _client.from('tasks').select().eq('restaurant_id', restaurantId);
     return List<Map<String, dynamic>>.from(response);
   }
 
-  // 📋 TASKS
+  // TASKS
   Future<List<Map<String, dynamic>>> getTasks() async {
-    final response = await _client.from('tasks').select().eq('status', 'open');
+    final response = await _client
+        .from('tasks')
+        .select('*, users:restaurant_id(name, email, profile_pic_url)')
+        .eq('status', 'open')
+        .order('created_at', ascending: false);
+
     return List<Map<String, dynamic>>.from(response);
   }
 
@@ -66,38 +71,38 @@ class SupabaseProvider {
     }
   }
 
-  // 📤 SUBMISSIONS
-  Future<void> submitProof(String taskId, String studentId, String proofUrl) async {
+  // SUBMISSIONS
+
+  Future<void> submitProof(String taskId, String studentId, String proofUrl, String? proofLink) async {
     await _client
         .from("submissions")
-        .update({
-          'proof_url': proofUrl,
-          'status': 'proof_submitted', // 👈 important: mark proof submitted
-        })
+        .update({'proof_url': proofUrl, 'proof_link': proofLink, 'status': 'proof_submitted'})
         .match({'task_id': taskId, 'student_id': studentId});
   }
 
-  // 👀 Restaurant fetches all submissions for their tasks
+  // Restaurant fetches all submissions for their tasks
   Future<List<Map<String, dynamic>>> getTaskSubmissions(String restaurantId) async {
     final response = await _client
         .from('submissions')
-        .select('*, tasks!inner(title, restaurant_id)')
-        .eq('tasks.restaurant_id', restaurantId);
+        .select('*, tasks!inner(title, restaurant_id), student:student_id(name)')
+        .eq('tasks.restaurant_id', restaurantId)
+        .order('created_at', ascending: false);
+
     return List<Map<String, dynamic>>.from(response);
   }
 
-  // 🛠️ Update submission status
+  // Update submission status
   Future<void> updateSubmissionStatus(String submissionId, String status) async {
     await _client.from('submissions').update({'status': status}).eq('id', submissionId); // correct filter
   }
 
-  // 💰 WALLET
+  // WALLET
   Future<Map<String, dynamic>?> getWallet(String studentId) async {
     final response = await _client.from('wallets').select().eq('student_id', studentId).maybeSingle();
     return response;
   }
 
-  // 🔑 REDEMPTIONS
+  // REDEMPTIONS
   Future<void> createRedemption(String studentId, String restaurantId, String code, int points) async {
     await _client.from('redemptions').insert({
       'student_id': studentId,
@@ -117,7 +122,7 @@ class SupabaseProvider {
     await _client.from('wallets').update({'balance_points': newBalance}).eq('student_id', studentId);
   }
 
-  // 🚀 Realtime listener for tasks
+  // Realtime listener for tasks
   RealtimeChannel subscribeToTasks(void Function(Map<String, dynamic> payload) onChange) {
     final channel = _client.channel('public:tasks')
       ..onPostgresChanges(
@@ -172,7 +177,7 @@ class SupabaseProvider {
 
 
 
-// 🧩 What’s Covered Here
+// What’s Covered Here
 
 // Auth → signUp, signIn, signOut
 

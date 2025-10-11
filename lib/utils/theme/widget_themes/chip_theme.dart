@@ -5,7 +5,7 @@ class HkChipTheme {
   HkChipTheme._();
 
   static ChipThemeData lightChipTheme = ChipThemeData(
-    disabledColor: FkColors.grey.withOpacity(0.4),
+    disabledColor: FkColors.grey.withValues(alpha: 0.4),
     labelStyle: const TextStyle(color: FkColors.black),
     selectedColor: FkColors.primary,
     padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12),

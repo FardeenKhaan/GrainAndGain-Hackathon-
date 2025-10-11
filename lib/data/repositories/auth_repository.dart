@@ -5,7 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class AuthRepository {
   final SupabaseProvider _provider = SupabaseProvider();
 
-  // 🔑 SIGN UP
+  // SIGN UP
   Future<UserModel?> signUp(String email, String password, String name, String role, String phone) async {
     try {
       final authResponse = await _provider.signUp(email, password);
@@ -38,7 +38,7 @@ class AuthRepository {
     }
   }
 
-  // 🔑 SIGN IN
+  // SIGN IN
   Future<UserModel?> signIn(String email, String password) async {
     final authResponse = await _provider.signIn(email, password);
     final user = authResponse.user;
@@ -66,12 +66,12 @@ class AuthRepository {
     return null;
   }
 
-  // 🚪 SIGN OUT
+  // SIGN OUT
   Future<void> signOut() async {
     await _provider.signOut();
   }
 
-  // 👤 FETCH USER PROFILE
+  // FETCH USER PROFILE
   Future<UserModel?> getProfile(String userId) async {
     final data = await _provider.getUser(userId);
     if (data != null) {
@@ -80,7 +80,7 @@ class AuthRepository {
     return null;
   }
 
-  // ✏️ UPDATE PROFILE
+  // UPDATE PROFILE
   Future<void> updateProfile(String userId, Map<String, dynamic> updates) async {
     await _provider.updateUser(userId, updates);
   }

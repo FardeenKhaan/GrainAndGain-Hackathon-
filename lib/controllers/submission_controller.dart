@@ -18,7 +18,7 @@ class SubmissionController extends GetxController {
     super.onClose();
   }
 
-  // 🟢 Restaurant loads submissions
+  // Restaurant loads submissions
   Future<void> loadRestaurantSubmissions(String restaurantId) async {
     try {
       isLoading.value = true;
@@ -41,7 +41,7 @@ class SubmissionController extends GetxController {
     }
   }
 
-  // 🟡 Student loads their own submissions
+  // Student loads their own submissions
   Future<void> loadMySubmissions(String studentId) async {
     try {
       isLoading.value = true;
@@ -64,25 +64,28 @@ class SubmissionController extends GetxController {
     }
   }
 
-  // 🟣 Student uploads proof
-  Future<void> uploadAndSubmitProof(File file, String studentId, String taskId) async {
+  // Student uploads proof
+  Future<void> uploadAndSubmitProof(File file, String studentId, String taskId, {String? proofLink}) async {
     try {
       isLoading.value = true;
+
       final proofUrl = await _repository.uploadProof(file, studentId, taskId);
-      await _repository.submitProof(taskId, studentId, proofUrl);
+
+      await _repository.submitProof(taskId, studentId, proofUrl, proofLink);
       Get.snackbar("Success", "Proof submitted successfully!");
+    } catch (e) {
+      Get.snackbar("Error", e.toString());
     } finally {
       isLoading.value = false;
     }
   }
 
-  // 🔴 Restaurant changes status (✅ with wallet credit)
+  // Restaurant changes status (with wallet credit)
   Future<void> changeStatus(String submissionId, String status) async {
     try {
       await _repository.updateSubmissionStatus(submissionId, status);
 
-      // ✅ If approved, credit wallet
-      // if (status == "approved") {
+      // If approved, credit wallet{
       if (status == "approved_final") {
         final sub = submissions.firstWhere((s) => s.id == submissionId);
 

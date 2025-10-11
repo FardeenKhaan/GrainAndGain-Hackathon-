@@ -58,8 +58,7 @@ class RedemptionRepository {
         .from('redemptions')
         .select('*, student:student_id(name)')
         .eq('restaurant_id', restaurantId)
-        .order('created_at', ascending: false);
-
+        .order('created_at', ascending: false);    
     return (response as List).map((e) => RedemptionModel.fromJson(e)).toList();
   }
 

@@ -45,7 +45,7 @@ class WalletController extends GetxController {
         if (updated.balancePoints > balance.value) {
           Get.snackbar(
             "🎉 Points Added!",
-            "You’ve earned ${updated.balancePoints - balance.value} new points!",
+            "Student earned ${updated.balancePoints - balance.value} new points!",
             snackPosition: SnackPosition.TOP,
             backgroundColor: Colors.green.shade600,
             colorText: Colors.white,
