@@ -18,57 +18,119 @@ class CreateTaskView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        iconTheme: IconThemeData(color: FkColors.white),
-        title: const Text("Create Task"),
-      ),
-      // appBar: FkAppBar(showBackButton: true, title: Text('Create Task')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: _titleController,
-              decoration: const InputDecoration(labelText: "Task Title"),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _descriptionController,
-              decoration: const InputDecoration(labelText: "Description"),
-              maxLines: 3,
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _rewardPointsController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: "Reward Points"),
-            ),
-            const SizedBox(height: 25),
-            ElevatedButton(
-              onPressed: () async {
-                final title = _titleController.text.trim();
-                final description = _descriptionController.text.trim();
-                final points = int.tryParse(_rewardPointsController.text.trim()) ?? 0;
-                final restaurantId = authController.currentUser.value!.id;
+      backgroundColor: isDark ? Colors.grey[900] : Colors.grey[50],
+      appBar: FkAppBar(title: const Text("Create Task")),
 
-                if (title.isEmpty || points <= 0) {
-                  Get.snackbar("Error", "Please fill all required fields");
-                  return;
-                }
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Card(
+          elevation: 3,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Text(
+                  "Task Details",
+                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, color: FkColors.primary),
+                ),
+                const SizedBox(height: 20),
 
-                await taskController.createTask(restaurantId, title, description, points);
+                // 📝 Task Title
+                TextField(
+                  controller: _titleController,
+                  decoration: InputDecoration(
+                    labelText: "Task Title",
+                    hintText: "Enter task title (e.g., develop a feature)",
+                    prefixIcon: const Icon(Icons.title_outlined),
+                    filled: true,
+                    fillColor: isDark ? Colors.grey[850] : Colors.grey[100],
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+                const SizedBox(height: 16),
 
-                Get.back(); // go back after creating
-              },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                textStyle: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              child: const Text("Create Task"),
+                // 📄 Description
+                TextField(
+                  controller: _descriptionController,
+                  maxLines: 4,
+                  decoration: InputDecoration(
+                    labelText: "Description",
+                    hintText: "Describe what needs to be done...",
+                    prefixIcon: const Icon(Icons.description_outlined),
+                    filled: true,
+                    fillColor: isDark ? Colors.grey[850] : Colors.grey[100],
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 💰 Reward Points
+                TextField(
+                  controller: _rewardPointsController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: "Reward Points",
+                    hintText: "Enter points (e.g., 100)",
+                    prefixIcon: const Icon(Icons.stars_rounded, color: Colors.amber),
+                    filled: true,
+                    fillColor: isDark ? Colors.grey[850] : Colors.grey[100],
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+                const SizedBox(height: 30),
+
+                // 🎯 Submit Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.add_task_rounded),
+                    onPressed: () async {
+                      final title = _titleController.text.trim();
+                      final description = _descriptionController.text.trim();
+                      final points = int.tryParse(_rewardPointsController.text.trim()) ?? 0;
+                      final restaurantId = authController.currentUser.value!.id;
+
+                      if (title.isEmpty || points <= 0) {
+                        Get.snackbar(
+                          "Error",
+                          "Please fill all required fields correctly.",
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.redAccent.withOpacity(0.8),
+                          colorText: Colors.white,
+                        );
+                        return;
+                      }
+
+                      await taskController.createTask(restaurantId, title, description, points);
+
+                      Get.back();
+                      Get.snackbar(
+                        "Success",
+                        "Task created successfully!",
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: Colors.green.withOpacity(0.8),
+                        colorText: Colors.white,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: FkColors.primary,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      textStyle: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    label: const Text("Create Task"),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
