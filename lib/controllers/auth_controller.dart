@@ -18,14 +18,14 @@ class AuthController extends GetxController {
         currentUser.value = user;
         Get.snackbar("Success", "Account created successfully!");
 
-        // 🚀 Redirect depending on role
+        // Redirect depending on role
         if (user.role == 'student') {
-          Get.offAllNamed(FkRoutes.dashboard);
+          Get.offAllNamed(FkRoutes.studentDashboard);
         } else if (user.role == 'restaurant') {
           Get.offAllNamed(FkRoutes.restaurantDashboard);
         } else {
           // fallback
-          Get.offAllNamed(FkRoutes.dashboard);
+          Get.offAllNamed(FkRoutes.studentDashboard);
         }
       }
     } catch (e) {
@@ -43,13 +43,13 @@ class AuthController extends GetxController {
       if (user != null) {
         currentUser.value = user;
 
-        // 🚀 Redirect depending on role
+        // Redirect depending on role
         if (user.role == 'student') {
-          Get.offAllNamed(FkRoutes.dashboard);
+          Get.offAllNamed(FkRoutes.studentDashboard);
         } else if (user.role == 'restaurant') {
           Get.offAllNamed(FkRoutes.restaurantDashboard);
         } else {
-          Get.offAllNamed(FkRoutes.dashboard);
+          Get.offAllNamed(FkRoutes.studentDashboard);
         }
       }
     } catch (e) {
