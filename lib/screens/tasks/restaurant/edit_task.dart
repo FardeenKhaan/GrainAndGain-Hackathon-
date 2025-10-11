@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:grain_and_gain_student/controllers/auth_controller.dart';
 import 'package:grain_and_gain_student/controllers/task_controller.dart';
 import 'package:grain_and_gain_student/data/models/task_model.dart';
