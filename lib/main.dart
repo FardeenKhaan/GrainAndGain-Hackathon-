@@ -8,10 +8,10 @@ import 'package:grain_and_gain_student/utils/theme/theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
-  /// Widgets Flutter Binding
+  /// --- Widgets Flutter Binding
   WidgetsFlutterBinding.ensureInitialized();
 
-  /// Initialize Supabase
+  /// --- Initialize Supabase
   await Supabase.initialize(
     url: FkKeys.supabaseUrl,
     anonKey: FkKeys.supabaseKey,
