@@ -19,7 +19,7 @@ class FkHelperFunctions {
             borderRadius: BorderRadius.circular(30),
             color: FkHelperFunctions.isDarkMode(Get.context!)
                 ? FkColors.darkerGrey.withValues(alpha: 0.9)
-                : FkColors.grey.withOpacity(0.9),
+                : FkColors.grey.withValues(alpha: 0.9),
           ),
           child: Center(child: Text(message, style: Theme.of(Get.context!).textTheme.labelLarge)),
         ),
