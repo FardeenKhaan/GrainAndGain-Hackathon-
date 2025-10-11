@@ -1,41 +1,50 @@
 class TaskModel {
   final String id;
-  final String restaurantId;
   final String title;
   final String? description;
   final int rewardPoints;
-  final String status; // open, in_progress, completed
-  final DateTime createdAt;
+  final String? restaurantId; 
+  final String? restaurantName;
+  final String status;
 
   TaskModel({
     required this.id,
-    required this.restaurantId,
     required this.title,
     this.description,
     required this.rewardPoints,
+    this.restaurantId,
+    this.restaurantName,
     required this.status,
-    required this.createdAt,
   });
 
   factory TaskModel.fromJson(Map<String, dynamic> json) {
+    // Handle possible map or string restaurant_id
+    final restaurantData = json['users'];
+    final restaurantIdValue = json['restaurant_id'];
+
     return TaskModel(
       id: json['id'] ?? '',
-      restaurantId: json['restaurant_id'] ?? '',
-      title: json['title'] ?? '',
+      title: json['title'] ?? 'Untitled Task',
       description: json['description'],
-      rewardPoints: json['reward_points'] ?? 0,
+      rewardPoints: json['reward_points'] is int
+          ? json['reward_points']
+          : int.tryParse(json['reward_points']?.toString() ?? '0') ?? 0,
+      restaurantId: restaurantIdValue is String
+          ? restaurantIdValue
+          : (restaurantIdValue is Map ? restaurantIdValue['id']?.toString() : restaurantIdValue?.toString()),
+      restaurantName: restaurantData != null
+          ? restaurantData['name'] ?? 'Unknown Restaurant'
+          : json['restaurant_name'] ?? 'Unknown Restaurant',
       status: json['status'] ?? 'open',
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : DateTime.now(),
     );
   }
 
   Map<String, dynamic> toJson() => {
     'id': id,
-    'restaurant_id': restaurantId,
     'title': title,
     'description': description,
     'reward_points': rewardPoints,
+    'restaurant_id': restaurantId,
     'status': status,
-    'created_at': createdAt.toIso8601String(),
   };
 }
